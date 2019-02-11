@@ -1,5 +1,8 @@
 const express = require('express');
 const configRoutes = require('./routes');
+const franc = require('franc');
+const Sentiment = require('sentiment');
+const sentiment = new Sentiment();
 const Twitter = require('twitter');
 require('dotenv').config();
 
@@ -10,16 +13,25 @@ const client = new Twitter({
   access_token_secret: process.env.ACCESS_TOKEN_SECRET
 });
 
-let num = 0;
 client.stream('statuses/filter', {track: 'Google'}, (stream) => {
-  stream.on('data', (event) => {
-    const english = /^[A-Za-z0-9!?.@#$%^&*()\[\]"',+\-:i\/\s…’]*$/;
+  let sentimentScore = 0;
+  let numTweets = 0;
 
-    if(english.test(event.text)) {
-      console.log(event.text);
+  setInterval(() => {
+    console.log(`Average sentiment = ${sentimentScore/numTweets}`);
+    sentimentScore = 0;
+    numTweets = 0;
+  }, 60 * 1000)
+
+  stream.on('data', (event) => {
+    let lang = franc(event.text);
+
+    if(lang == 'eng') {
+      let tweetSentimentScore = sentiment.analyze(event.text);
+      sentimentScore += tweetSentimentScore.comparative;
+      numTweets++;
     }
-    console.log(num);
-    num++;
+
   });
   
   stream.on('error', (error) => {
