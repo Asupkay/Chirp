@@ -12,6 +12,7 @@
   "dependencies": {
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
+    "sentiment": "^5.0.1",
     "twitter": "^1.7.1"
   }
 }
