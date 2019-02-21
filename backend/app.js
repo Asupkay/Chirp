@@ -2,8 +2,14 @@ const express = require('express');
 const configRoutes = require('./routes');
 const franc = require('franc');
 const Sentiment = require('sentiment');
-const sentiment = new Sentiment();
 const Twitter = require('twitter');
+const http = require('http')
+
+const sentiment = new Sentiment();
+const app = express();
+const server = http.Server(app);
+const io = require('socket.io')(server);
+
 require('dotenv').config();
 
 const client = new Twitter({
@@ -19,6 +25,13 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
 
   setInterval(() => {
     console.log(`Average sentiment = ${sentimentScore/numTweets}`);
+
+    let eventObject = {
+      time: new Date(),
+      averageSentiment: sentimentScore/numTweets
+    };
+
+    io.to('Google').emit('new sentiment', eventObject);
     sentimentScore = 0;
     numTweets = 0;
   }, 60 * 1000)
@@ -39,11 +52,15 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
   });
 });
 
-const app = express();
+io.on('connection', (socket) => {
+  socket.on('room', (room) => {
+    socket.join(room);
+  });
+});
 
 configRoutes(app);
 
 
-app.listen(3000, () => {
+server.listen(3000, () => {
   console.log('Server running on http://localhost:3000');
 });
