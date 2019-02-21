@@ -64,6 +64,7 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
 
     if(lang == 'eng') {
       let tweetSentimentScore = sentiment.analyze(event.text);
+      console.log(tweetSentimentScore);
       sentimentScore += tweetSentimentScore.comparative;
       numTweets++;
     }
@@ -77,6 +78,7 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
 
 io.on('connection', (socket) => {
   socket.on('room', (room) => {
+    socket.emit('Initial connection');
     socket.join(room);
   });
 });
