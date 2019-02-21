@@ -23,7 +23,7 @@ const config = {
 
 firebase.initializeApp(config);
 
-const writeSentimentData = (sentimentScore, timeStamp) => {
+const writeSentimentData = (sentimentScore) => {
   firebase.database().ref('google/'+timeStamp).set({
     sentiment_score: sentimentScore
   });
@@ -56,7 +56,7 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
 
     io.to('Google').emit('new sentiment', eventObject);
 
-    writeSentimentData(sentimentScore/numTweets, timeStamp);
+    writeSentimentData(sentimentScore/numTweets);
     sentimentScore = 0;
     numTweets = 0;
   }, 60 * 1000)
