@@ -2,8 +2,14 @@ const express = require('express');
 const configRoutes = require('./routes');
 const franc = require('franc');
 const Sentiment = require('sentiment');
-const sentiment = new Sentiment();
 const Twitter = require('twitter');
+const http = require('http')
+
+const sentiment = new Sentiment();
+const app = express();
+const server = http.Server(app);
+const io = require('socket.io')(server);
+
 require('dotenv').config();
 
 var firebase = require('firebase');
@@ -37,6 +43,14 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
 
   setInterval(() => {
     console.log(`Average sentiment = ${sentimentScore/numTweets}`);
+
+    let eventObject = {
+      time: new Date(),
+      averageSentiment: sentimentScore/numTweets
+    };
+
+    io.to('Google').emit('new sentiment', eventObject);
+
     writeUserData(sentimentScore/numTweets, timeStamp);
     sentimentScore = 0;
     numTweets = 0;
@@ -49,6 +63,7 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
 
     if(lang == 'eng') {
       let tweetSentimentScore = sentiment.analyze(event.text);
+      console.log(tweetSentimentScore);
       sentimentScore += tweetSentimentScore.comparative;
       numTweets++;
     }
@@ -60,11 +75,16 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
   });
 });
 
-const app = express();
+io.on('connection', (socket) => {
+  socket.on('room', (room) => {
+    socket.emit('Initial connection');
+    socket.join(room);
+  });
+});
 
 configRoutes(app);
 
 
-app.listen(3000, () => {
+server.listen(3000, () => {
   console.log('Server running on http://localhost:3000');
 });
