@@ -12,9 +12,9 @@ const io = require('socket.io')(server);
 
 require('dotenv').config();
 
-var firebase = require('firebase');
+const firebase = require('firebase');
 
-var config = {
+const config = {
   apiKey: process.env.DB_API_KEY,
   authDomain: process.env.DB_AUTH_DOMAIN,
   databaseURL: process.env.DB_URL,
@@ -23,11 +23,16 @@ var config = {
 
 firebase.initializeApp(config);
 
-const writeUserData = (sentimentScore, timeStamp) => {
+const writeSentimentData = (sentimentScore, timeStamp) => {
   firebase.database().ref('google/'+timeStamp).set({
     sentiment_score: sentimentScore
   });
-}
+};
+
+const getSentimentScores = async (company) => {
+  const sentiment = await firebase.database().ref(company+'/').once('value');
+  return sentiment.val();
+};
 
 const client = new Twitter({
   consumer_key: process.env.CONSUMER_KEY,
@@ -51,7 +56,7 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
 
     io.to('Google').emit('new sentiment', eventObject);
 
-    writeUserData(sentimentScore/numTweets, timeStamp);
+    writeSentimentData(sentimentScore/numTweets, timeStamp);
     sentimentScore = 0;
     numTweets = 0;
   }, 60 * 1000)
@@ -59,11 +64,10 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
   stream.on('data', (event) => {
     let lang = franc(event.text);
     date = new Date();
-    timeStamp = date
+    timeStamp = date;
 
     if(lang == 'eng') {
       let tweetSentimentScore = sentiment.analyze(event.text);
-      console.log(tweetSentimentScore);
       sentimentScore += tweetSentimentScore.comparative;
       numTweets++;
     }
@@ -76,8 +80,9 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
 });
 
 io.on('connection', (socket) => {
-  socket.on('room', (room) => {
-    socket.emit('Initial connection');
+  socket.on('room', async (room) => {
+    const sentiment = await getSentimentScores(room);
+    socket.emit('Initial sentiment', sentiment);
     socket.join(room);
   });
 });
@@ -85,6 +90,8 @@ io.on('connection', (socket) => {
 configRoutes(app);
 
 
-server.listen(3000, () => {
+server.listen(3000, async () => {
   console.log('Server running on http://localhost:3000');
+  const sentiment = await getSentimentScores('google');
+  console.log(sentiment);
 });
