@@ -18,9 +18,8 @@ var config = {
 firebase.initializeApp(config);
 
 const writeUserData = (sentimentScore, timeStamp) => {
-  firebase.database().ref('google/').push({
-    sentiment_score: sentimentScore,
-    time_stamp: timeStamp
+  firebase.database().ref('google/'+timeStamp).set({
+    sentiment_score: sentimentScore
   });
 }
 
@@ -46,7 +45,7 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
   stream.on('data', (event) => {
     let lang = franc(event.text);
     date = new Date();
-    timeStamp = date.toLocaleTimeString();
+    timeStamp = date
 
     if(lang == 'eng') {
       let tweetSentimentScore = sentiment.analyze(event.text);
