@@ -17,7 +17,7 @@ var config = {
 
 firebase.initializeApp(config);
 
-function writeUserData(sentimentScore, timeStamp) {
+const writeUserData = (sentimentScore, timeStamp) => {
   firebase.database().ref('google/').push({
     sentiment_score: sentimentScore,
     time_stamp: timeStamp
