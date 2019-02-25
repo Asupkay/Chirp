@@ -29,9 +29,24 @@ const writeSentimentData = (sentimentScore) => {
   });
 };
 
+const writeLanguageData = (language, count) => {
+  firebase.database().ref(`language/${language}`).set({
+    count: count
+  });
+};
+
 const getSentimentScores = async (company) => {
   const sentiment = await firebase.database().ref(company+'/').once('value');
   return sentiment.val();
+};
+
+const getLanguageCount = async (language) => {
+  const lang = await firebase.database().ref(language+'/').once('value');
+  let lang_value = lang.val();
+  if (lang_value == null) {
+    lang_value = 0;
+  };
+  return lang_value;
 };
 
 const client = new Twitter({
@@ -45,8 +60,9 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
   let sentimentScore = 0;
   let numTweets = 0;
   let date = 0;
+  let languages = {};
 
-  setInterval(() => {
+  setInterval(async () => {
     console.log(`Average sentiment = ${sentimentScore/numTweets}`);
 
     let eventObject = {
@@ -57,6 +73,14 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
     io.to('Google').emit('new sentiment', eventObject);
 
     writeSentimentData(sentimentScore/numTweets);
+
+    for (let key in languages) {
+      count = await getLanguageCount(key);
+      // console.log(key, count);
+      count += languages[key];
+      writeLanguageData(key, count);
+    };
+    
     sentimentScore = 0;
     numTweets = 0;
   }, 60 * 1000)
@@ -66,6 +90,12 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
     date = new Date();
     timeStamp = date;
 
+    if (lang in languages) {
+      languages[lang] += 1;
+    } else {
+      languages[lang] = 1;
+    };
+    
     if(lang == 'eng') {
       let tweetSentimentScore = sentiment.analyze(event.text);
       sentimentScore += tweetSentimentScore.comparative;
