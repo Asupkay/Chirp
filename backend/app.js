@@ -84,6 +84,7 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
     };
 
     io.to('Google').emit('new sentiment', eventObject);
+    io.to('Google').emit('new language nums', languages); 
 
     writeSentimentData(sentimentScore/numTweets, 'google');
 
@@ -96,6 +97,7 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
     
     sentimentScore = 0;
     numTweets = 0;
+    languages = {};
   }, 60 * 1000)
 
   stream.on('data', (event) => {
