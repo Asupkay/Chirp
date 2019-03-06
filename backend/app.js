@@ -34,8 +34,8 @@ admin.initializeApp({
 
 const db = admin.database()
 
-const writeSentimentData = (sentimentScore) => {
-  db.ref('google/'+timeStamp).set({
+const writeSentimentData = (sentimentScore, company) => {
+  db.ref(`company/${company}/`+timeStamp).set({
     sentiment_score: sentimentScore
   });
 };
@@ -47,15 +47,17 @@ const writeLanguageData = (language, count) => {
 };
 
 const getSentimentScores = async (company) => {
-  const sentiment = await db.ref(company+'/').once('value');
+  const sentiment = await db.ref(`company/${company}/`).once('value');
   return sentiment.val();
 };
 
 const getLanguageCount = async (language) => {
-  const lang = await db.ref(language+'/').once('value');
+  const lang = await db.ref(`language/${language}/`).once('value');
   let lang_value = lang.val();
   if (lang_value == null) {
     lang_value = 0;
+  } else {
+    lang_value = lang_value.count;
   };
   return lang_value;
 };
@@ -83,7 +85,7 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
 
     io.to('Google').emit('new sentiment', eventObject);
 
-    writeSentimentData(sentimentScore/numTweets);
+    writeSentimentData(sentimentScore/numTweets, 'google');
 
     for (let key in languages) {
       count = await getLanguageCount(key);
