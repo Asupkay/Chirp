@@ -35,31 +35,31 @@ admin.initializeApp({
 const db = admin.database()
 
 const writeSentimentData = (sentimentScore, company) => {
-  db.ref(`company/${company}/`+timeStamp).set({
+  db.ref(`${company}/sentiment/`+timeStamp).set({
     sentiment_score: sentimentScore
   });
 };
 
-const writeLanguageData = (language, count) => {
-  db.ref(`language/${language}`).set({
+const writeLanguageData = (language, count, company) => {
+  db.ref(`${company}/language/${language}`).set({
     count: count
   });
 };
 
 const getSentimentScores = async (company) => {
-  const sentiment = await db.ref(`company/${company}/`).once('value');
+  const sentiment = await db.ref(`${company}/sentiment/`).once('value');
   return sentiment.val();
 };
 
-const getLanguageCount = async (language) => {
-  const lang = await db.ref(`language/${language}/`).once('value');
-  let lang_value = lang.val();
-  if (lang_value == null) {
-    lang_value = 0;
+const getLanguageCount = async (language, company) => {
+  const lang = await db.ref(`${company}/language/${language}/`).once('value');
+  let langValue = lang.val();
+  if (langValue == null) {
+    langValue = 0;
   } else {
-    lang_value = lang_value.count;
+    langValue = langValue.count;
   };
-  return lang_value;
+  return langValue;
 };
 
 const client = new Twitter({
@@ -86,13 +86,13 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
     io.to('Google').emit('new sentiment', eventObject);
     io.to('Google').emit('new language nums', languages); 
 
-    writeSentimentData(sentimentScore/numTweets, 'google');
+    writeSentimentData(sentimentScore/numTweets, 'Google');
 
     for (let key in languages) {
-      count = await getLanguageCount(key);
+      count = await getLanguageCount(key, 'Google');
       // console.log(key, count);
       count += languages[key];
-      writeLanguageData(key, count);
+      writeLanguageData(key, count, 'Google');
     };
     
     sentimentScore = 0;
@@ -137,6 +137,6 @@ configRoutes(app);
 
 server.listen(3000, async () => {
   console.log('Server running on http://localhost:3000');
-  const sentiment = await getSentimentScores('google');
+  const sentiment = await getSentimentScores('Google');
   console.log(sentiment);
 });
