@@ -62,6 +62,12 @@ const getLanguageCount = async (language, company) => {
   return langValue;
 };
 
+const getLanguageCounts = async (company) => {
+  const langs = await db.ref(`${company}/language`).once('value');
+  let langsValue = langs.value;
+  return langsValue;   
+}
+
 const client = new Twitter({
   consumer_key: process.env.CONSUMER_KEY,
   consumer_secret: process.env.CONSUMER_SECRET,
@@ -127,7 +133,9 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
 io.on('connection', (socket) => {
   socket.on('room', async (room) => {
     const sentiment = await getSentimentScores(room);
-    socket.emit('Initial sentiment', sentiment);
+    const languages = await getLanguageCounts(rooms);
+    socket.emit('initial sentiment', sentiment);
+    socket.emit('initial language count', languages);
     socket.join(room);
   });
 });
