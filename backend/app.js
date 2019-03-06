@@ -4,6 +4,8 @@ const franc = require('franc');
 const Sentiment = require('sentiment');
 const Twitter = require('twitter');
 const http = require('http')
+const admin = require('firebase-admin');
+const serviceAccount = require('./serviceAccountKey.json');
 
 const sentiment = new Sentiment();
 const app = express();
@@ -12,21 +14,7 @@ const io = require('socket.io')(server);
 
 require('dotenv').config();
 
-// const firebase = require('firebase');
-
-// const config = {
-//   apiKey: process.env.DB_API_KEY,
-//   authDomain: process.env.DB_AUTH_DOMAIN,
-//   databaseURL: process.env.DB_URL,
-//   storageBucket: process.env.STORAGE_BUCKET
-// };
-
-// firebase.initializeApp(config);
-
-const admin = require('firebase-admin');
-
-const serviceAccount = require('./serviceAccountKey.json');
-
+//Initialze Firebase authentication
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: process.env.DB_URL
@@ -34,23 +22,35 @@ admin.initializeApp({
 
 const db = admin.database()
 
-const writeSentimentData = (sentimentScore, company) => {
-  db.ref(`${company}/sentiment/`+timeStamp).set({
-    sentiment_score: sentimentScore
+//Initialze Twitter client
+const client = new Twitter({
+  consumer_key: process.env.CONSUMER_KEY,
+  consumer_secret: process.env.CONSUMER_SECRET,
+  access_token_key: process.env.ACCESS_TOKEN_KEY,
+  access_token_secret: process.env.ACCESS_TOKEN_SECRET
+});
+
+//Write sentiment data for a company at a timestamp
+const writeSentimentData = (eventObject, company) => {
+  db.ref(`${company}/sentiment/${eventObject.time}`).set({
+    averageSentiment: eventObject.averageSentiment
   });
 };
 
+//Writes language count about company
 const writeLanguageData = (language, count, company) => {
   db.ref(`${company}/language/${language}`).set({
     count: count
   });
 };
 
+//Get all the sentiment scores of a company
 const getSentimentScores = async (company) => {
   const sentiment = await db.ref(`${company}/sentiment/`).once('value');
   return sentiment.val();
 };
 
+//Get the language count of a particular language and company
 const getLanguageCount = async (language, company) => {
   const lang = await db.ref(`${company}/language/${language}/`).once('value');
   let langValue = lang.val();
@@ -62,25 +62,20 @@ const getLanguageCount = async (language, company) => {
   return langValue;
 };
 
+//Gets all counts of languages
 const getLanguageCounts = async (company) => {
   const langs = await db.ref(`${company}/language`).once('value');
-  let langsValue = langs.value;
+  let langsValue = langs.val();
   return langsValue;   
 }
 
-const client = new Twitter({
-  consumer_key: process.env.CONSUMER_KEY,
-  consumer_secret: process.env.CONSUMER_SECRET,
-  access_token_key: process.env.ACCESS_TOKEN_KEY,
-  access_token_secret: process.env.ACCESS_TOKEN_SECRET
-});
-
+//Client to track Google tweets
 client.stream('statuses/filter', {track: 'Google'}, (stream) => {
   let sentimentScore = 0;
   let numTweets = 0;
-  let date = 0;
   let languages = {};
 
+  //Every minute actions for collecting out data
   setInterval(async () => {
     console.log(`Average sentiment = ${sentimentScore/numTweets}`);
 
@@ -92,11 +87,10 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
     io.to('Google').emit('new sentiment', eventObject);
     io.to('Google').emit('new language nums', languages); 
 
-    writeSentimentData(sentimentScore/numTweets, 'Google');
+    writeSentimentData(eventObject, 'Google');
 
     for (let key in languages) {
       count = await getLanguageCount(key, 'Google');
-      // console.log(key, count);
       count += languages[key];
       writeLanguageData(key, count, 'Google');
     };
@@ -106,10 +100,9 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
     languages = {};
   }, 60 * 1000)
 
+  //When a tweet is emitted over the stream
   stream.on('data', (event) => {
     let lang = franc(event.text);
-    date = new Date();
-    timeStamp = date;
 
     if (lang in languages) {
       languages[lang] += 1;
@@ -130,6 +123,7 @@ client.stream('statuses/filter', {track: 'Google'}, (stream) => {
   });
 });
 
+//For when the client initially connects to the socket
 io.on('connection', (socket) => {
   socket.on('room', async (room) => {
     const sentiment = await getSentimentScores(room);
@@ -142,9 +136,6 @@ io.on('connection', (socket) => {
 
 configRoutes(app);
 
-
 server.listen(3000, async () => {
   console.log('Server running on http://localhost:3000');
-  const sentiment = await getSentimentScores('Google');
-  console.log(sentiment);
 });
