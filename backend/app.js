@@ -12,36 +12,47 @@ const io = require('socket.io')(server);
 
 require('dotenv').config();
 
-const firebase = require('firebase');
+// const firebase = require('firebase');
 
-const config = {
-  apiKey: process.env.DB_API_KEY,
-  authDomain: process.env.DB_AUTH_DOMAIN,
-  databaseURL: process.env.DB_URL,
-  storageBucket: process.env.STORAGE_BUCKET
-};
+// const config = {
+//   apiKey: process.env.DB_API_KEY,
+//   authDomain: process.env.DB_AUTH_DOMAIN,
+//   databaseURL: process.env.DB_URL,
+//   storageBucket: process.env.STORAGE_BUCKET
+// };
 
-firebase.initializeApp(config);
+// firebase.initializeApp(config);
+
+const admin = require('firebase-admin');
+
+const serviceAccount = require('./serviceAccountKey.json');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: process.env.DB_URL
+});
+
+const db = admin.database()
 
 const writeSentimentData = (sentimentScore) => {
-  firebase.database().ref('google/'+timeStamp).set({
+  db.ref('google/'+timeStamp).set({
     sentiment_score: sentimentScore
   });
 };
 
 const writeLanguageData = (language, count) => {
-  firebase.database().ref(`language/${language}`).set({
+  db.ref(`language/${language}`).set({
     count: count
   });
 };
 
 const getSentimentScores = async (company) => {
-  const sentiment = await firebase.database().ref(company+'/').once('value');
+  const sentiment = await db.ref(company+'/').once('value');
   return sentiment.val();
 };
 
 const getLanguageCount = async (language) => {
-  const lang = await firebase.database().ref(language+'/').once('value');
+  const lang = await db.ref(language+'/').once('value');
   let lang_value = lang.val();
   if (lang_value == null) {
     lang_value = 0;
