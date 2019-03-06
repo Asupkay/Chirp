@@ -61,4 +61,8 @@ typings/
 .next
 
 # Ignore serviceAccountKey file
+<<<<<<< HEAD
 serviceAccountKey.json
+=======
+serviceAccountKey.json
+>>>>>>> 1c0b433bcd3775630618dc158f7236455f2b4200
