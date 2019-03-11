@@ -12,7 +12,7 @@ const io = require('socket.io')(server);
 require('dotenv').config();
 
 //Intialize Streams
-streams.initializeStreams(io);
+streams(io);
 
 //For when the client initially connects to the socket
 io.on('connection', socket => {
