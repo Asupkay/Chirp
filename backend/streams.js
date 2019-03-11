@@ -1,7 +1,7 @@
 const Twitter = require('twitter');
 const franc = require('franc');
 const Sentiment = require('sentiment');
-const firebase = require('database');
+const firebase = require('./database');
 const sentiment = new Sentiment();
 
 //Initialze Twitter client
