@@ -1,7 +1,6 @@
 import React from "react";
-import { render } from "react-dom";
 import { withStyles } from "@material-ui/core/styles";
-import Chart from "./chart";
+import Chart from "./Chart";
 
 const styles = theme => ({
   "chart-container": {
@@ -93,6 +92,7 @@ class App extends React.Component {
 
     return (
       <div className={classes["chart-container"]}>
+      <h1 className="App-title">Bitcoin Real Time Chart</h1>
         <Chart
           data={this.state.lineChartData}
           options={this.state.lineChartOptions}
