@@ -18,12 +18,14 @@ streams(io);
 io.on('connection', socket => {
   socket.on('room', async room => {
     const sentiment = await firebase.getSentimentScores(room);
-    const languages = await firebase.getLanguageCounts(rooms);
+    const languages = await firebase.getLanguageCounts(room);
     socket.emit('initial sentiment', sentiment);
     socket.emit('initial language count', languages);
     socket.join(room);
   });
 });
+
+app.use(express.static(__dirname + './../frontend/build'));
 
 configRoutes(app);
 

@@ -1,18 +1,18 @@
-import React, { Component } from "react";
-import "./Login.css";
-import firebase from "firebase";
-import Dashboard from "../Dashboard/Dashboard";
-import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
+import React, { Component } from 'react';
+import firebase from 'firebase';
+import Dashboard from '../Dashboard/Dashboard';
+import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
+import { Header, Container, Image } from 'semantic-ui-react';
 
 firebase.initializeApp({
-  apiKey: "AIzaSyAAvY6B5kU2wEW4VuQflawZzCweyJu4Hgo",
-  authDomain: "engineering-capstone.firebaseapp.com"
+  apiKey: 'AIzaSyAAvY6B5kU2wEW4VuQflawZzCweyJu4Hgo',
+  authDomain: 'engineering-capstone.firebaseapp.com'
 });
 
 class Login extends Component {
   state = { isSignedIn: false };
   uiConfig = {
-    signInFlow: "popup",
+    signInFlow: 'popup',
     signInOptions: [
       firebase.auth.GoogleAuthProvider.PROVIDER_ID,
       firebase.auth.FacebookAuthProvider.PROVIDER_ID,
@@ -27,7 +27,7 @@ class Login extends Component {
   componentDidMount = () => {
     firebase.auth().onAuthStateChanged(user => {
       this.setState({ isSignedIn: !!user });
-      console.log("user", user);
+      console.log('user', user);
     });
   };
 
@@ -35,7 +35,9 @@ class Login extends Component {
     return (
       <div className="Login">
         <div>
-          <h1 height="-5000px">Chirp - Twitter Sentiment Analysis Software</h1>
+          <Header as="h1" textAlign="center">
+            Chirp - Twitter Sentiment Analysis Software
+          </Header>
         </div>
         {this.state.isSignedIn ? (
           <span>

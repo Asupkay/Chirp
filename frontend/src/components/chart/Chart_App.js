@@ -1,10 +1,11 @@
-import React from "react";
-import { withStyles } from "@material-ui/core/styles";
-import Chart from "./chart";
 import io from 'socket.io-client';
+import React from 'react';
+import { withStyles } from '@material-ui/core/styles';
+import Chart from './chart';
+import { Header } from 'semantic-ui-react';
 
 const styles = theme => ({
-  "chart-container": {
+  'chart-container': {
     height: 400
   }
 });
@@ -21,7 +22,7 @@ class App extends React.Component {
           borderColor: this.props.theme.palette.primary.main,
           pointBackgroundColor: this.props.theme.palette.secondary.main,
           pointBorderColor: this.props.theme.palette.secondary.main,
-          borderWidth: "2",
+          borderWidth: '2',
           lineTension: 0.45,
           data: []
         }
@@ -48,7 +49,7 @@ class App extends React.Component {
 
   componentDidMount() {
 
-    let socket = io.connect('35.185.113.25', {path: '/nodejs/socket.io'});
+    let socket = io.connect();
     socket.on('connect', () => {
       socket.emit('room', 'Google');
     });
@@ -85,7 +86,7 @@ class App extends React.Component {
         ...this.state.lineChartData,
         datasets: [newData],
         labels: this.state.lineChartData.labels.concat(
-          time.toLocaleTimeString()
+          time
         )
       }
       
@@ -100,13 +101,13 @@ class App extends React.Component {
       type: "subscribe",
       channels: [
         {
-          name: "ticker",
-          product_ids: ["BTC-USD"]
+          name: 'ticker',
+          product_ids: ['BTC-USD']
         }
       ]
     };
 
-    this.ws = new WebSocket("wss://ws-feed.gdax.com");
+    this.ws = new WebSocket('wss://ws-feed.gdax.com');
 
     this.ws.onopen = () => {
       this.ws.send(JSON.stringify(subscribe));
@@ -114,7 +115,7 @@ class App extends React.Component {
 
     this.ws.onmessage = e => {
       const value = JSON.parse(e.data);
-      if (value.type !== "ticker") {
+      if (value.type !== 'ticker') {
         return;
       }
 
@@ -141,8 +142,10 @@ class App extends React.Component {
     const { classes } = this.props;
 
     return (
-      <div className={classes["chart-container"]}>
-        <h1 className="App-title">Sentiment Real Time Chart</h1>
+      <div className={classes['chart-container']}>
+        <Header as="h3" textAlign="center">
+          Sentiment Analysis Over Time
+        </Header>
         <Chart
           data={this.state.lineChartData}
           options={this.state.lineChartOptions}
