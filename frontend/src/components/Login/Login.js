@@ -34,11 +34,6 @@ class Login extends Component {
   render() {
     return (
       <div className="Login">
-        <div>
-          <Header as="h1" textAlign="center">
-            Chirp - Twitter Sentiment Analysis Software
-          </Header>
-        </div>
         {this.state.isSignedIn ? (
           <span>
             <Dashboard />

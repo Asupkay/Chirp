@@ -11,9 +11,6 @@ class Dashboard extends Component {
   render() {
     return (
       <div>
-        <Header as="h2" textAlign="center">
-          Welcome to the Sentiment Dashboard!
-        </Header>
         <Image src={Google} size="small" centered />
         <Container>
           <Chart />
