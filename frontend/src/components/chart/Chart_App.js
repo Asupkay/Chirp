@@ -55,6 +55,18 @@ class App extends React.Component {
 
     socket.on('initial sentiment', (sentiment) => {
       console.log(sentiment);
+
+      /*let sentiments = [];
+      let timeLabels = [];
+      for(let i = 0; i < sentiment.length; i++) {
+        sentiments.push(sentiment[i].averageSentiment);
+      }
+
+      const chartData = {
+        ...this.state.lineChartData,
+        datasets: [sentiments]
+        la
+      }*/
     });
 
     socket.on('initial language count', (languages) => {
