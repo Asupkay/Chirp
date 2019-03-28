@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import firebase from "firebase";
-import Chart from "../Chart";
+import Chart from "../chart/chart";
 import Pie from "../Pie";
 import google from "./Google_logo.png";
 import Client from "../NewsFeed/Client";
