@@ -1,6 +1,7 @@
 import React from "react";
 import { withStyles } from "@material-ui/core/styles";
 import Chart from "./chart";
+import io from 'socket.io-client';
 
 const styles = theme => ({
   "chart-container": {
@@ -15,7 +16,7 @@ class App extends React.Component {
       datasets: [
         {
           type: "line",
-          label: "BTC-USD",
+          label: "Sentiment",
           backgroundColor: "rgba(0, 0, 0, 0)",
           borderColor: this.props.theme.palette.primary.main,
           pointBackgroundColor: this.props.theme.palette.secondary.main,
@@ -46,7 +47,44 @@ class App extends React.Component {
   };
 
   componentDidMount() {
-    const subscribe = {
+
+    let socket = io.connect('35.185.113.25', {path: '/nodejs/socket.io'});
+    socket.on('connect', () => {
+      socket.emit('room', 'Google');
+    });
+
+    socket.on('initial sentiment', (sentiment) => {
+      console.log(sentiment);
+    });
+
+    socket.on('initial language count', (languages) => {
+      console.log(languages);
+    });
+  
+    socket.on('new sentiment', (nSentiment) => {
+      console.log(nSentiment);
+      
+      const { time, averageSentiment } = nSentiment;
+      const oldData = this.state.lineChartData.datasets[0];
+      const newData = { ...oldData };
+      newData.data.push(averageSentiment);
+      
+      const newChartData = {
+        ...this.state.lineChartData,
+        datasets: [newData],
+        labels: this.state.lineChartData.labels.concat(
+          time.toLocaleTimeString()
+        )
+      }
+      
+      this.setState({ lineChartData: newChartData });
+    });
+
+    socket.on('new language nums', (nLanguages) => {
+      console.log(nLanguages);
+    });
+
+    /*const subscribe = {
       type: "subscribe",
       channels: [
         {
@@ -80,7 +118,7 @@ class App extends React.Component {
         )
       };
       this.setState({ lineChartData: newChartData });
-    };
+    };*/
   }
 
   componentWillUnmount() {
@@ -92,7 +130,7 @@ class App extends React.Component {
 
     return (
       <div className={classes["chart-container"]}>
-      <h1 className="App-title">Bitcoin Real Time Chart</h1>
+        <h1 className="App-title">Sentiment Real Time Chart</h1>
         <Chart
           data={this.state.lineChartData}
           options={this.state.lineChartOptions}
