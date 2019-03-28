@@ -1,9 +1,10 @@
-import React from "react";
-import { withStyles } from "@material-ui/core/styles";
-import Chart from "./chart";
+import React from 'react';
+import { withStyles } from '@material-ui/core/styles';
+import Chart from './chart';
+import { Header, Container, Image } from 'semantic-ui-react';
 
 const styles = theme => ({
-  "chart-container": {
+  'chart-container': {
     height: 400
   }
 });
@@ -14,13 +15,13 @@ class App extends React.Component {
       labels: [],
       datasets: [
         {
-          type: "line",
-          label: "BTC-USD",
-          backgroundColor: "rgba(0, 0, 0, 0)",
+          type: 'line',
+          label: 'BTC-USD',
+          backgroundColor: 'rgba(0, 0, 0, 0)',
           borderColor: this.props.theme.palette.primary.main,
           pointBackgroundColor: this.props.theme.palette.secondary.main,
           pointBorderColor: this.props.theme.palette.secondary.main,
-          borderWidth: "2",
+          borderWidth: '2',
           lineTension: 0.45,
           data: []
         }
@@ -47,16 +48,16 @@ class App extends React.Component {
 
   componentDidMount() {
     const subscribe = {
-      type: "subscribe",
+      type: 'subscribe',
       channels: [
         {
-          name: "ticker",
-          product_ids: ["BTC-USD"]
+          name: 'ticker',
+          product_ids: ['BTC-USD']
         }
       ]
     };
 
-    this.ws = new WebSocket("wss://ws-feed.gdax.com");
+    this.ws = new WebSocket('wss://ws-feed.gdax.com');
 
     this.ws.onopen = () => {
       this.ws.send(JSON.stringify(subscribe));
@@ -64,7 +65,7 @@ class App extends React.Component {
 
     this.ws.onmessage = e => {
       const value = JSON.parse(e.data);
-      if (value.type !== "ticker") {
+      if (value.type !== 'ticker') {
         return;
       }
 
@@ -91,8 +92,10 @@ class App extends React.Component {
     const { classes } = this.props;
 
     return (
-      <div className={classes["chart-container"]}>
-      <h1 className="App-title">Bitcoin Real Time Chart</h1>
+      <div className={classes['chart-container']}>
+        <Header as="h3" textAlign="center">
+          Sentiment Analysis Over Time
+        </Header>
         <Chart
           data={this.state.lineChartData}
           options={this.state.lineChartOptions}
