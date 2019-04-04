@@ -10,15 +10,14 @@ import './Dashboard.css';
 import { Header, Container, Image } from 'semantic-ui-react';
 
 class Dashboard extends Component {
-
   state = {
     lineChartData: {
       labels: [],
       datasets: [
         {
-          type: "line",
-          label: "Sentiment",
-          backgroundColor: "rgba(0, 0, 0, 0)",
+          type: 'line',
+          label: 'Sentiment',
+          backgroundColor: 'rgba(0, 0, 0, 0)',
           borderColor: this.props.theme.palette.primary.main,
           pointBackgroundColor: this.props.theme.palette.secondary.main,
           pointBorderColor: this.props.theme.palette.secondary.main,
@@ -74,17 +73,15 @@ class Dashboard extends Component {
         }
       ]
     }
-
   };
 
   componentDidMount() {
-
     let socket = io.connect();
     socket.on('connect', () => {
       socket.emit('room', 'Google');
     });
 
-    socket.on('initial sentiment', (sentiment) => {
+    socket.on('initial sentiment', sentiment => {
       console.log(sentiment);
 
       /*let sentiments = [];
@@ -100,60 +97,89 @@ class Dashboard extends Component {
       }*/
     });
 
-    socket.on('initial language count', (languages) => {
+    socket.on('initial language count', languages => {
       console.log(languages);
     });
-  
-    socket.on('new sentiment', (nSentiment) => {
+
+    socket.on('new sentiment', nSentiment => {
       console.log(nSentiment);
-      
+
       const { time, averageSentiment } = nSentiment;
       const oldData = this.state.lineChartData.datasets[0];
       const newData = { ...oldData };
       newData.data.push(averageSentiment);
-      
+
+      let date = new Date(time);
+      let formattedTime = date.toLocaleTimeString('en-US');
+
       const newChartData = {
         ...this.state.lineChartData,
         datasets: [newData],
-        labels: this.state.lineChartData.labels.concat(
-          time
-        )
-      }
-      
+        labels: this.state.lineChartData.labels.concat(formattedTime)
+      };
+
       this.setState({ lineChartData: newChartData });
     });
 
-    socket.on('new language nums', (nLanguages) => {
+    socket.on('new language nums', nLanguages => {
       console.log(nLanguages);
 
-      Object.keys(nLanguages).forEach((key) => {
+      Object.keys(nLanguages).forEach(key => {
         let lang = this.state.pie.lang;
-        let labels = this.state.pie.labels;
-        let data = this.state.pie.data;
+        let labels = this.state.pie.labels.slice();
+        console.log(this.state.pie);
+        let data = this.state.pie.datasets[0].data.slice();
         let addNum = nLanguages[key];
-        if(lang[key] == null) {
-          lang[key] = this.state.labels.length;
+        let backgroundColor = [
+          '#FF6384',
+          '#36A2EB',
+          '#FFCE56',
+          '#7C3525',
+          '#4D7E34',
+          '#347E77',
+          '#343E7E',
+          '#C93351'
+        ];
+        let hoverBackgroundColor = [
+          '#FF6384',
+          '#36A2EB',
+          '#FFCE56',
+          '#7C3525',
+          '#4D7E34',
+          '#347E77',
+          '#343E7E',
+          '#C93351'
+        ];
+        if (lang[key] == null) {
+          lang[key] = labels.length;
           labels.push(key);
           data.push(addNum);
         } else {
           data[lang[key]] += addNum;
         }
-        this.setState({pie: { lang: lang, labels, data }});
+        this.setState({
+          pie: {
+            lang,
+            labels,
+            datasets: [{ data, backgroundColor, hoverBackgroundColor }]
+          }
+        });
       });
     });
   }
-
-
 
   render() {
     return (
       <div>
         <Image src={Google} size="small" centered />
         <Container>
-          <Chart lineChartData={this.state.lineChartData} lineChartOptions={this.state.lineChartOptions}/>
+          <Chart
+            lineChartData={this.state.lineChartData}
+            lineChartOptions={this.state.lineChartOptions}
+          />
         </Container>
         <Container>
-          <Pie data = {this.state.pie}/>
+          <Pie data={this.state.pie} />
         </Container>
       </div>
     );
