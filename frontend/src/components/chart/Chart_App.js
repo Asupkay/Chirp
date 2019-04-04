@@ -98,10 +98,6 @@ class App extends React.Component {
     });
   }
 
-  componentWillUnmount() {
-    this.ws.close();
-  }
-
   render() {
     const { classes } = this.props;
 
