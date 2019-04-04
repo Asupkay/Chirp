@@ -7,7 +7,7 @@ export default class App extends React.Component {
   render() {
     return (
       <div>
-        <PieExample />
+        <PieExample data={this.props.data}/>
       </div>
     );
   }
