@@ -12,61 +12,72 @@ const client = new Twitter({
   access_token_secret: process.env.ACCESS_TOKEN_SECRET
 });
 
+const exportedMethods = {
+  async companyStream(company,io){
+    client.stream('statuses/filter', {track: company}, (stream) => {
+      let sentimentScore = 0;
+      let numTweets = 0;
+      let languages = {};
+
+      //Every minute actions for collecting out data
+      setInterval(async () => {
+        console.log(`Average sentiment ${company}= ${sentimentScore/numTweets}`);
+
+        let eventObject = {
+          time: new Date(),
+          averageSentiment: sentimentScore/numTweets
+        };
+
+        io.to(company).emit('new sentiment', eventObject);
+        io.to(company).emit('new language nums', languages);
+
+        firebase.writeSentimentData(eventObject, company);
+
+        for (let key in languages) {
+          count = await firebase.getLanguageCount(key, company);
+          count += languages[key];
+          firebase.writeLanguageData(key, count, company);
+        };
+
+        sentimentScore = 0;
+        numTweets = 0;
+        languages = {};
+      }, 60 * 1000)
+
+      //When a tweet is emitted over the stream
+      stream.on('data', (event) => {
+        let lang = franc(event.text);
+
+        if (lang in languages) {
+          languages[lang] += 1;
+        } else {
+          languages[lang] = 1;
+        };
+
+        if(lang == 'eng') {
+          let tweetSentimentScore = sentiment.analyze(event.text);
+          sentimentScore += tweetSentimentScore.comparative;
+          numTweets++;
+        }
+
+      });
+
+      stream.on('error', (error) => {
+        throw error;
+      });
+    });
+  }
+}
+
+
 
 const initializeStreams = (io) => {
-  //Client to track Google tweets
-  client.stream('statuses/filter', {track: 'Google'}, (stream) => {
-    let sentimentScore = 0;
-    let numTweets = 0;
-    let languages = {};
-
-    //Every minute actions for collecting out data
-    setInterval(async () => {
-      console.log(`Average sentiment = ${sentimentScore/numTweets}`);
-
-      let eventObject = {
-        time: new Date(),
-        averageSentiment: sentimentScore/numTweets
-      };
-
-      io.to('Google').emit('new sentiment', eventObject);
-      io.to('Google').emit('new language nums', languages); 
-
-      firebase.writeSentimentData(eventObject, 'Google');
-
-      for (let key in languages) {
-        count = await firebase.getLanguageCount(key, 'Google');
-        count += languages[key];
-        firebase.writeLanguageData(key, count, 'Google');
-      };
-      
-      sentimentScore = 0;
-      numTweets = 0;
-      languages = {};
-    }, 60 * 1000)
-
-    //When a tweet is emitted over the stream
-    stream.on('data', (event) => {
-      let lang = franc(event.text);
-
-      if (lang in languages) {
-        languages[lang] += 1;
-      } else {
-        languages[lang] = 1;
-      };
-      
-      if(lang == 'eng') {
-        let tweetSentimentScore = sentiment.analyze(event.text);
-        sentimentScore += tweetSentimentScore.comparative;
-        numTweets++;
-      }
-
-    });
-    
-    stream.on('error', (error) => {
-      throw error;
-    });
-  });
+  //Client to track tweets of the companies
+    exportedMethods.companyStream("Microsoft",io);
+    exportedMethods.companyStream("Amazon",io);
+    //exportedMethods.companyStream("Apple",io);
+    //exportedMethods.companyStream("Facebook",io);
+    //exportedMethods.companyStream("Google",io);
 }
 
 module.exports = initializeStreams;
