@@ -12,9 +12,9 @@ const client = new Twitter({
   access_token_secret: process.env.ACCESS_TOKEN_SECRET
 });
 
-const initializeStreams = io => {
-  //Client to track Google tweets
-  client.stream('statuses/filter', { track: 'Google' }, stream => {
+const initializeStreams = (io, company) => {
+  //Client to track company tweets
+  client.stream('statuses/filter', { track: company }, stream => {
     let sentimentScore = 0;
     let numTweets = 0;
     let languages = {};
@@ -28,15 +28,15 @@ const initializeStreams = io => {
         averageSentiment: sentimentScore / numTweets
       };
 
-      io.to('Google').emit('new sentiment', eventObject);
-      io.to('Google').emit('new language nums', languages);
+      io.to(company).emit('new sentiment', eventObject);
+      io.to(company).emit('new language nums', languages);
 
-      firebase.writeSentimentData(eventObject, 'Google');
+      firebase.writeSentimentData(eventObject, company);
 
       for (let key in languages) {
-        count = await firebase.getLanguageCount(key, 'Google');
+        count = await firebase.getLanguageCount(key, company);
         count += languages[key];
-        firebase.writeLanguageData(key, count, 'Google');
+        firebase.writeLanguageData(key, count, company);
       }
 
       sentimentScore = 0;
