@@ -82,19 +82,27 @@ class Dashboard extends Component {
     });
 
     socket.on('initial sentiment', sentiment => {
-      console.log(sentiment);
 
-      /*let sentiments = [];
+      let oldSentiment = this.state.lineChartData.datasets[0];
+      let sentiments = { ...oldSentiment };
       let timeLabels = [];
-      for(let i = 0; i < sentiment.length; i++) {
-        sentiments.push(sentiment[i].averageSentiment);
+
+      for(let timestamp in sentiment) {
+        if(sentiment.hasOwnProperty(timestamp)) {
+          sentiments.data.push(sentiment[timestamp].averageSentiment);
+          const date = new Date(parseInt(timestamp));
+          const formattedTime = date.toLocaleTimeString('en-US');
+          timeLabels.push(formattedTime);
+        }
       }
 
       const chartData = {
         ...this.state.lineChartData,
-        datasets: [sentiments]
-        la
-      }*/
+        datasets: [sentiments],
+        labels: timeLabels
+      }
+
+      this.setState({ lineChartData: chartData });
     });
 
     socket.on('initial language count', languages => {
