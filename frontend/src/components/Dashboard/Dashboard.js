@@ -98,7 +98,45 @@ class Dashboard extends Component {
     });
 
     socket.on('initial language count', languages => {
+      let backgroundColor = [
+        '#FF6384',
+        '#36A2EB',
+        '#FFCE56',
+        '#7C3525',
+        '#4D7E34',
+        '#347E77',
+        '#343E7E',
+        '#C93351'
+      ];
+      let hoverBackgroundColor = [
+        '#FF6384',
+        '#36A2EB',
+        '#FFCE56',
+        '#7C3525',
+        '#4D7E34',
+        '#347E77',
+        '#343E7E',
+        '#C93351'
+      ];
+      let lang = {};
+      let labels = [];
+      let data = [];
+      Object.keys(languages).forEach(key => {
+        let langCount = languages[key].count;
+        lang[key] = langCount;
+        labels.push(key);
+        data.push(langCount);
+      });
       console.log(languages);
+      console.log(labels);
+      console.log(data);
+      this.setState({
+        pie: {
+          lang: languages,
+          labels,
+          datasets: [{ data, backgroundColor, hoverBackgroundColor }]
+        }
+      });
     });
 
     socket.on('new sentiment', nSentiment => {
@@ -121,51 +159,51 @@ class Dashboard extends Component {
       this.setState({ lineChartData: newChartData });
     });
 
-    socket.on('new language nums', nLanguages => {
-      console.log(nLanguages);
+    // socket.on('new language nums', nLanguages => {
+    //   console.log(nLanguages);
 
-      Object.keys(nLanguages).forEach(key => {
-        let lang = this.state.pie.lang;
-        let labels = this.state.pie.labels.slice();
-        console.log(this.state.pie);
-        let data = this.state.pie.datasets[0].data.slice();
-        let addNum = nLanguages[key];
-        let backgroundColor = [
-          '#FF6384',
-          '#36A2EB',
-          '#FFCE56',
-          '#7C3525',
-          '#4D7E34',
-          '#347E77',
-          '#343E7E',
-          '#C93351'
-        ];
-        let hoverBackgroundColor = [
-          '#FF6384',
-          '#36A2EB',
-          '#FFCE56',
-          '#7C3525',
-          '#4D7E34',
-          '#347E77',
-          '#343E7E',
-          '#C93351'
-        ];
-        if (lang[key] == null) {
-          lang[key] = labels.length;
-          labels.push(key);
-          data.push(addNum);
-        } else {
-          data[lang[key]] += addNum;
-        }
-        this.setState({
-          pie: {
-            lang,
-            labels,
-            datasets: [{ data, backgroundColor, hoverBackgroundColor }]
-          }
-        });
-      });
-    });
+    //   Object.keys(nLanguages).forEach(key => {
+    //     let lang = this.state.pie.lang;
+    //     let labels = this.state.pie.labels.slice();
+    //     console.log(this.state.pie);
+    //     let data = this.state.pie.datasets[0].data.slice();
+    //     let addNum = nLanguages[key];
+    //     let backgroundColor = [
+    //       '#FF6384',
+    //       '#36A2EB',
+    //       '#FFCE56',
+    //       '#7C3525',
+    //       '#4D7E34',
+    //       '#347E77',
+    //       '#343E7E',
+    //       '#C93351'
+    //     ];
+    //     let hoverBackgroundColor = [
+    //       '#FF6384',
+    //       '#36A2EB',
+    //       '#FFCE56',
+    //       '#7C3525',
+    //       '#4D7E34',
+    //       '#347E77',
+    //       '#343E7E',
+    //       '#C93351'
+    //     ];
+    //     if (lang[key] == null) {
+    //       lang[key] = labels.length;
+    //       labels.push(key);
+    //       data.push(addNum);
+    //     } else {
+    //       data[lang[key]] += addNum;
+    //     }
+    //     this.setState({
+    //       pie: {
+    //         lang,
+    //         labels,
+    //         datasets: [{ data, backgroundColor, hoverBackgroundColor }]
+    //       }
+    //     });
+    //   });
+    // });
   }
 
   render() {
