@@ -14,9 +14,11 @@ require('dotenv').config();
 
 //Intialize Streams
 streams(io, 'Google');
+streams(io, 'Facebook');
 
 // Initialize Google News
 news('Google');
+news('Facebook');
 
 //For when the client initially connects to the socket
 io.on('connection', socket => {
