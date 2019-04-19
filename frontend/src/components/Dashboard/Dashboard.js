@@ -82,13 +82,12 @@ class Dashboard extends Component {
     });
 
     socket.on('initial sentiment', sentiment => {
-
       let oldSentiment = this.state.lineChartData.datasets[0];
       let sentiments = { ...oldSentiment };
       let timeLabels = [];
 
-      for(let timestamp in sentiment) {
-        if(sentiment.hasOwnProperty(timestamp)) {
+      for (let timestamp in sentiment) {
+        if (sentiment.hasOwnProperty(timestamp)) {
           sentiments.data.push(sentiment[timestamp].averageSentiment);
           const date = new Date(parseInt(timestamp));
           const formattedTime = date.toLocaleTimeString('en-US');
@@ -100,7 +99,7 @@ class Dashboard extends Component {
         ...this.state.lineChartData,
         datasets: [sentiments],
         labels: timeLabels
-      }
+      };
 
       this.setState({ lineChartData: chartData });
     });
@@ -131,16 +130,13 @@ class Dashboard extends Component {
       let data = [];
       Object.keys(languages).forEach(key => {
         let langCount = languages[key].count;
-        lang[key] = langCount;
+        lang[key] = labels.length;
         labels.push(key);
         data.push(langCount);
       });
-      console.log(languages);
-      console.log(labels);
-      console.log(data);
       this.setState({
         pie: {
-          lang: languages,
+          lang,
           labels,
           datasets: [{ data, backgroundColor, hoverBackgroundColor }]
         }
@@ -167,51 +163,51 @@ class Dashboard extends Component {
       this.setState({ lineChartData: newChartData });
     });
 
-    // socket.on('new language nums', nLanguages => {
-    //   console.log(nLanguages);
+    socket.on('new language nums', nLanguages => {
+      console.log(nLanguages);
 
-    //   Object.keys(nLanguages).forEach(key => {
-    //     let lang = this.state.pie.lang;
-    //     let labels = this.state.pie.labels.slice();
-    //     console.log(this.state.pie);
-    //     let data = this.state.pie.datasets[0].data.slice();
-    //     let addNum = nLanguages[key];
-    //     let backgroundColor = [
-    //       '#FF6384',
-    //       '#36A2EB',
-    //       '#FFCE56',
-    //       '#7C3525',
-    //       '#4D7E34',
-    //       '#347E77',
-    //       '#343E7E',
-    //       '#C93351'
-    //     ];
-    //     let hoverBackgroundColor = [
-    //       '#FF6384',
-    //       '#36A2EB',
-    //       '#FFCE56',
-    //       '#7C3525',
-    //       '#4D7E34',
-    //       '#347E77',
-    //       '#343E7E',
-    //       '#C93351'
-    //     ];
-    //     if (lang[key] == null) {
-    //       lang[key] = labels.length;
-    //       labels.push(key);
-    //       data.push(addNum);
-    //     } else {
-    //       data[lang[key]] += addNum;
-    //     }
-    //     this.setState({
-    //       pie: {
-    //         lang,
-    //         labels,
-    //         datasets: [{ data, backgroundColor, hoverBackgroundColor }]
-    //       }
-    //     });
-    //   });
-    // });
+      Object.keys(nLanguages).forEach(key => {
+        let lang = this.state.pie.lang;
+        let labels = this.state.pie.labels.slice();
+        console.log(this.state.pie);
+        let data = this.state.pie.datasets[0].data.slice();
+        let addNum = nLanguages[key];
+        let backgroundColor = [
+          '#FF6384',
+          '#36A2EB',
+          '#FFCE56',
+          '#7C3525',
+          '#4D7E34',
+          '#347E77',
+          '#343E7E',
+          '#C93351'
+        ];
+        let hoverBackgroundColor = [
+          '#FF6384',
+          '#36A2EB',
+          '#FFCE56',
+          '#7C3525',
+          '#4D7E34',
+          '#347E77',
+          '#343E7E',
+          '#C93351'
+        ];
+        if (lang[key] == null) {
+          lang[key] = labels.length;
+          labels.push(key);
+          data.push(addNum);
+        } else {
+          data[lang[key]] += addNum;
+        }
+        this.setState({
+          pie: {
+            lang,
+            labels,
+            datasets: [{ data, backgroundColor, hoverBackgroundColor }]
+          }
+        });
+      });
+    });
   }
 
   render() {
