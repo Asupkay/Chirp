@@ -17,7 +17,7 @@ class App extends React.Component {
     return (
       <div className={classes['chart-container']}>
         <Header as="h3" textAlign="center">
-          Sentiment Analysis Over Time
+          Sentiment Analysis For {this.props.room} Over Time
         </Header>
         <Chart
           data={this.props.lineChartData}

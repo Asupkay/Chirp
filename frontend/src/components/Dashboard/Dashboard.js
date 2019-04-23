@@ -3,14 +3,18 @@ import firebase from 'firebase';
 import Chart from '../chart/Chart_App';
 import Pie from '../Pie';
 import Google from './Google_logo.png';
+import Facebook from './facebook.svg';
 import Client from '../NewsFeed/Client';
 import { withStyles } from '@material-ui/core/styles';
 import io from 'socket.io-client';
 import './Dashboard.css';
-import { Header, Container, Image } from 'semantic-ui-react';
+import { Grid, Header, Container, Image, Button } from 'semantic-ui-react';
+
+
 
 class Dashboard extends Component {
   state = {
+    room: 'Google',
     lineChartData: {
       labels: [],
       datasets: [
@@ -72,18 +76,38 @@ class Dashboard extends Component {
           ]
         }
       ]
-    }
+    },
+    socket: io.connect(),
   };
 
-  componentDidMount() {
-    let socket = io.connect();
-    socket.on('connect', () => {
-      socket.emit('room', 'Google');
+  changeRoom = async (company) => {
+    let oldRoom = this.state.room;
+    await this.setState({
+      room: company
     });
 
+    let socket = this.state.socket;
+    socket.emit('changeRoom', {oldRoom, newRoom: company});
+
+    console.log(this.state);
+  }
+
+  constructor(props) {
+    super(props);
+  }
+
+  componentDidMount() {
+    let socket = this.state.socket;
+    socket.on('connect', () => {
+      socket.emit('room', this.state.room);
+    });
+
+    
     socket.on('initial sentiment', sentiment => {
+      console.log("HERE");
       let oldSentiment = this.state.lineChartData.datasets[0];
       let sentiments = { ...oldSentiment };
+      sentiments.data = [];
       let timeLabels = [];
 
       for (let timestamp in sentiment) {
@@ -210,14 +234,25 @@ class Dashboard extends Component {
     });
   }
 
+  
+
   render() {
     return (
       <div>
-        <Image src={Google} size="small" centered />
+        <Grid>
+          <Grid.Column textAlign="center">
+            <Button.Group>
+              <Button color='violet' onClick={() => this.changeRoom('Google')}><Image src={Google} size="tiny"/></Button>
+              <Button.Or />
+              <Button color='blue' onClick={() => this.changeRoom('Facebook')}><Image src={Facebook} size="tiny"/></Button>
+            </Button.Group>
+          </Grid.Column>
+        </Grid>
         <Container>
           <Chart
             lineChartData={this.state.lineChartData}
             lineChartOptions={this.state.lineChartOptions}
+            room={this.state.room}
           />
         </Container>
         <Container>
