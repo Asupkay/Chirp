@@ -158,7 +158,7 @@ class Dashboard extends Component {
         pQueue.enqueue(key, langCount);
       });
 
-      for (let i of [1, 2, 3, 4, 5, 6, 7, 8]) {
+      for (let i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
         let highest = pQueue.rear();
         lang[highest.element] = highest.priority;
         labels.push(highest.element);
@@ -235,7 +235,7 @@ class Dashboard extends Component {
         pQueue.enqueue(key, lang[key]);
       });
 
-      for (let i of [1, 2, 3, 4, 5, 6, 7, 8]) {
+      for (let i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
         let highest = pQueue.rear();
         lang[highest.element] = highest.priority;
         labels.push(highest.element);
