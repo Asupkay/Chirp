@@ -47,15 +47,17 @@ const initializeStreams = (io, company) => {
 
     //When a tweet is emitted over the stream
     stream.on('data', event => {
-      let lang = franc(event.text);
+      let lang = isoConv(franc(event.text));
 
-      if (lang in languages) {
-        languages[lang] += 1;
-      } else {
-        languages[lang] = 1;
+      if (lang != null) {
+        if (lang in languages) {
+          languages[lang] += 1;
+        } else {
+          languages[lang] = 1;
+        }
       }
 
-      if (lang == 'eng') {
+      if (lang == 'English') {
         let tweetSentimentScore = sentiment.analyze(event.text);
         sentimentScore += tweetSentimentScore.comparative;
         numTweets++;
