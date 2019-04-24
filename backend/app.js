@@ -31,18 +31,15 @@ io.on('connection', socket => {
   });
 
   socket.on('changeRoom', async rooms => {
-    const {newRoom, oldRoom} = rooms;
+    const { newRoom, oldRoom } = rooms;
     socket.leave(oldRoom);
     const sentiment = await firebase.getSentimentScores(newRoom);
     const languages = await firebase.getLanguageCounts(newRoom);
     socket.emit('initial sentiment', sentiment);
     socket.emit('initial language count', languages);
     socket.join(newRoom);
-
   });
-
 });
-
 
 app.use(express.static(__dirname + './../frontend/build'));
 

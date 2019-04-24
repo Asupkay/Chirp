@@ -3,6 +3,7 @@ const franc = require('franc');
 const Sentiment = require('sentiment');
 const firebase = require('./database');
 const sentiment = new Sentiment();
+const isoConv = require('iso-language-converter');
 
 //Initialze Twitter client
 const client = new Twitter({
