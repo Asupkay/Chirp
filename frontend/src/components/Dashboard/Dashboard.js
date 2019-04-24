@@ -61,7 +61,9 @@ class Dashboard extends Component {
             '#4D7E34',
             '#347E77',
             '#343E7E',
-            '#C93351'
+            '#C93351',
+            '#42c932',
+            '#c96b31'
           ],
           hoverBackgroundColor: [
             '#FF6384',
@@ -71,7 +73,9 @@ class Dashboard extends Component {
             '#4D7E34',
             '#347E77',
             '#343E7E',
-            '#C93351'
+            '#C93351',
+            '#42c932',
+            '#c96b31'
           ]
         }
       ]
@@ -135,7 +139,9 @@ class Dashboard extends Component {
         '#4D7E34',
         '#347E77',
         '#343E7E',
-        '#C93351'
+        '#C93351',
+        '#42c932',
+        '#c96b31'
       ];
       let hoverBackgroundColor = [
         '#FF6384',
@@ -145,7 +151,9 @@ class Dashboard extends Component {
         '#4D7E34',
         '#347E77',
         '#343E7E',
-        '#C93351'
+        '#C93351',
+        '#42c932',
+        '#c96b31'
       ];
       let lang = {};
       let labels = [];
@@ -208,7 +216,9 @@ class Dashboard extends Component {
         '#4D7E34',
         '#347E77',
         '#343E7E',
-        '#C93351'
+        '#C93351',
+        '#42c932',
+        '#c96b31'
       ];
       let hoverBackgroundColor = [
         '#FF6384',
@@ -218,7 +228,9 @@ class Dashboard extends Component {
         '#4D7E34',
         '#347E77',
         '#343E7E',
-        '#C93351'
+        '#C93351',
+        '#42c932',
+        '#c96b31'
       ];
 
       Object.keys(nLanguages).forEach(key => {
