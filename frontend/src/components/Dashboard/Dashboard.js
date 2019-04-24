@@ -9,8 +9,7 @@ import { withStyles } from '@material-ui/core/styles';
 import io from 'socket.io-client';
 import './Dashboard.css';
 import { Grid, Header, Container, Image, Button } from 'semantic-ui-react';
-
-
+import { PriorityQueue } from './priorityQueue';
 
 class Dashboard extends Component {
   state = {
@@ -77,20 +76,20 @@ class Dashboard extends Component {
         }
       ]
     },
-    socket: io.connect(),
+    socket: io.connect()
   };
 
-  changeRoom = async (company) => {
+  changeRoom = async company => {
     let oldRoom = this.state.room;
     await this.setState({
       room: company
     });
 
     let socket = this.state.socket;
-    socket.emit('changeRoom', {oldRoom, newRoom: company});
+    socket.emit('changeRoom', { oldRoom, newRoom: company });
 
     console.log(this.state);
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -102,9 +101,8 @@ class Dashboard extends Component {
       socket.emit('room', this.state.room);
     });
 
-    
     socket.on('initial sentiment', sentiment => {
-      console.log("HERE");
+      console.log('HERE');
       let oldSentiment = this.state.lineChartData.datasets[0];
       let sentiments = { ...oldSentiment };
       sentiments.data = [];
@@ -152,12 +150,21 @@ class Dashboard extends Component {
       let lang = {};
       let labels = [];
       let data = [];
+
+      let pQueue = new PriorityQueue();
       Object.keys(languages).forEach(key => {
         let langCount = languages[key].count;
-        lang[key] = labels.length;
-        labels.push(key);
-        data.push(langCount);
+        lang[key] = langCount;
+        pQueue.enqueue(key, langCount);
       });
+
+      for (let i of [1, 2, 3, 4, 5, 6, 7, 8]) {
+        let highest = pQueue.rear();
+        lang[highest.element] = highest.priority;
+        labels.push(highest.element);
+        data.push(highest.priority);
+      }
+
       this.setState({
         pie: {
           lang,
@@ -190,51 +197,60 @@ class Dashboard extends Component {
     socket.on('new language nums', nLanguages => {
       console.log(nLanguages);
 
+      let lang = this.state.pie.lang;
+      let labels = [];
+      let data = [];
+      let backgroundColor = [
+        '#FF6384',
+        '#36A2EB',
+        '#FFCE56',
+        '#7C3525',
+        '#4D7E34',
+        '#347E77',
+        '#343E7E',
+        '#C93351'
+      ];
+      let hoverBackgroundColor = [
+        '#FF6384',
+        '#36A2EB',
+        '#FFCE56',
+        '#7C3525',
+        '#4D7E34',
+        '#347E77',
+        '#343E7E',
+        '#C93351'
+      ];
+
       Object.keys(nLanguages).forEach(key => {
-        let lang = this.state.pie.lang;
-        let labels = this.state.pie.labels.slice();
-        console.log(this.state.pie);
-        let data = this.state.pie.datasets[0].data.slice();
         let addNum = nLanguages[key];
-        let backgroundColor = [
-          '#FF6384',
-          '#36A2EB',
-          '#FFCE56',
-          '#7C3525',
-          '#4D7E34',
-          '#347E77',
-          '#343E7E',
-          '#C93351'
-        ];
-        let hoverBackgroundColor = [
-          '#FF6384',
-          '#36A2EB',
-          '#FFCE56',
-          '#7C3525',
-          '#4D7E34',
-          '#347E77',
-          '#343E7E',
-          '#C93351'
-        ];
         if (lang[key] == null) {
-          lang[key] = labels.length;
-          labels.push(key);
-          data.push(addNum);
+          lang[key] = addNum;
         } else {
-          data[lang[key]] += addNum;
+          lang[key] += addNum;
         }
-        this.setState({
-          pie: {
-            lang,
-            labels,
-            datasets: [{ data, backgroundColor, hoverBackgroundColor }]
-          }
-        });
+      });
+
+      let pQueue = new PriorityQueue();
+      Object.keys(lang).forEach(key => {
+        pQueue.enqueue(key, lang[key]);
+      });
+
+      for (let i of [1, 2, 3, 4, 5, 6, 7, 8]) {
+        let highest = pQueue.rear();
+        lang[highest.element] = highest.priority;
+        labels.push(highest.element);
+        data.push(highest.priority);
+      }
+
+      this.setState({
+        pie: {
+          lang,
+          labels,
+          datasets: [{ data, backgroundColor, hoverBackgroundColor }]
+        }
       });
     });
   }
-
-  
 
   render() {
     return (
@@ -242,9 +258,13 @@ class Dashboard extends Component {
         <Grid>
           <Grid.Column textAlign="center">
             <Button.Group>
-              <Button color='violet' onClick={() => this.changeRoom('Google')}><Image src={Google} size="tiny"/></Button>
+              <Button color="violet" onClick={() => this.changeRoom('Google')}>
+                <Image src={Google} size="tiny" />
+              </Button>
               <Button.Or />
-              <Button color='blue' onClick={() => this.changeRoom('Facebook')}><Image src={Facebook} size="tiny"/></Button>
+              <Button color="blue" onClick={() => this.changeRoom('Facebook')}>
+                <Image src={Facebook} size="tiny" />
+              </Button>
             </Button.Group>
           </Grid.Column>
         </Grid>
