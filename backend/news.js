@@ -24,7 +24,7 @@ const getNews = company => {
           firebase.writeNewsData(eventObject, company);
         });
       });
-  }, 60 * 1000);
+  }, 15 * 60 * 1000);
 };
 
 module.exports = getNews;
