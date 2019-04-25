@@ -16,6 +16,7 @@
     "firebase": "^5.8.2",
     "firebase-admin": "^7.0.0",
     "franc": "^4.0.0",
+    "iso-language-converter": "^1.1.0",
     "newsapi": "^2.4.0",
     "pusher": "^2.2.0",
     "pusher-js": "^4.4.0",
