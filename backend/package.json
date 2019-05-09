@@ -22,9 +22,7 @@
     "pusher-js": "^4.4.0",
     "sentiment": "^5.0.1",
     "socket.io": "^2.2.0",
-    "twitter": "^1.7.1"
-  },
-  "devDependencies": {
+    "twitter": "^1.7.1",
     "jest": "^24.8.0"
   }
 }
