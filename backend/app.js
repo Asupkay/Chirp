@@ -2,6 +2,7 @@ const express = require('express');
 const configRoutes = require('./routes');
 const admin = require('firebase-admin');
 const streams = require('./streams');
+const news = require('./news');
 const http = require('http');
 const firebase = require('./database');
 
@@ -12,7 +13,12 @@ const io = require('socket.io')(server);
 require('dotenv').config();
 
 //Intialize Streams
-streams(io);
+streams(io, 'Google');
+streams(io, 'Facebook');
+
+// Initialize Google News
+news('Google');
+news('Facebook');
 
 //For when the client initially connects to the socket
 io.on('connection', socket => {
@@ -22,6 +28,16 @@ io.on('connection', socket => {
     socket.emit('initial sentiment', sentiment);
     socket.emit('initial language count', languages);
     socket.join(room);
+  });
+
+  socket.on('changeRoom', async rooms => {
+    const { newRoom, oldRoom } = rooms;
+    socket.leave(oldRoom);
+    const sentiment = await firebase.getSentimentScores(newRoom);
+    const languages = await firebase.getLanguageCounts(newRoom);
+    socket.emit('initial sentiment', sentiment);
+    socket.emit('initial language count', languages);
+    socket.join(newRoom);
   });
 });
 

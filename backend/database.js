@@ -26,6 +26,16 @@ const exportedMethods = {
     });
   },
 
+  // Write news data to firebase
+  async writeNewsData(eventObject, company) {
+    db.ref(`${company}/news/${eventObject.time}`).set({
+      title: eventObject.title,
+      author: eventObject.author,
+      description: eventObject.description,
+      url: eventObject.url
+    });
+  },
+
   //Get all the sentiment scores of a company
   async getSentimentScores(company) {
     const sentiment = await db.ref(`${company}/sentiment/`).once('value');

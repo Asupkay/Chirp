@@ -3,6 +3,7 @@ const franc = require('franc');
 const Sentiment = require('sentiment');
 const firebase = require('./database');
 const sentiment = new Sentiment();
+const isoConv = require('iso-language-converter');
 
 //Initialze Twitter client
 const client = new Twitter({
@@ -12,61 +13,61 @@ const client = new Twitter({
   access_token_secret: process.env.ACCESS_TOKEN_SECRET
 });
 
-
-const initializeStreams = (io) => {
-  //Client to track Google tweets
-  client.stream('statuses/filter', {track: 'Google'}, (stream) => {
+const initializeStreams = (io, company) => {
+  //Client to track company tweets
+  client.stream('statuses/filter', { track: company }, stream => {
     let sentimentScore = 0;
     let numTweets = 0;
     let languages = {};
 
     //Every minute actions for collecting out data
     setInterval(async () => {
-      console.log(`Average sentiment = ${sentimentScore/numTweets}`);
+      console.log(`Average sentiment = ${sentimentScore / numTweets}`);
 
       let eventObject = {
-        time: new Date(),
-        averageSentiment: sentimentScore/numTweets
+        time: +new Date(),
+        averageSentiment: sentimentScore / numTweets
       };
 
-      io.to('Google').emit('new sentiment', eventObject);
-      io.to('Google').emit('new language nums', languages); 
+      io.to(company).emit('new sentiment', eventObject);
+      io.to(company).emit('new language nums', languages);
 
-      firebase.writeSentimentData(eventObject, 'Google');
+      firebase.writeSentimentData(eventObject, company);
 
       for (let key in languages) {
-        count = await firebase.getLanguageCount(key, 'Google');
+        count = await firebase.getLanguageCount(key, company);
         count += languages[key];
-        firebase.writeLanguageData(key, count, 'Google');
-      };
-      
+        firebase.writeLanguageData(key, count, company);
+      }
+
       sentimentScore = 0;
       numTweets = 0;
       languages = {};
-    }, 60 * 1000)
+    }, 60 * 1000);
 
     //When a tweet is emitted over the stream
-    stream.on('data', (event) => {
-      let lang = franc(event.text);
+    stream.on('data', event => {
+      let lang = isoConv(franc(event.text));
 
-      if (lang in languages) {
-        languages[lang] += 1;
-      } else {
-        languages[lang] = 1;
-      };
-      
-      if(lang == 'eng') {
+      if (lang != null) {
+        if (lang in languages) {
+          languages[lang] += 1;
+        } else {
+          languages[lang] = 1;
+        }
+      }
+
+      if (lang == 'English') {
         let tweetSentimentScore = sentiment.analyze(event.text);
         sentimentScore += tweetSentimentScore.comparative;
         numTweets++;
       }
-
     });
-    
-    stream.on('error', (error) => {
+
+    stream.on('error', error => {
       throw error;
     });
   });
-}
+};
 
 module.exports = initializeStreams;
