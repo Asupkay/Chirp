@@ -1,28 +1,30 @@
-const database = require('../database.js');
+const database = require('../database');
 
-database.writeSentimentData.mockImplementation(() => 42);
-database.writeLanguageData.mockImplementation(() => 42);
-database.getSentimentScores.mockImplementation(() => 42);
-database.getLanguageCount.mockImplementation(() => 42);
-database.getLanguageCounts.mockImplementation(() => 42);
+jest.mock('../database');
+
+database.writeSentimentData.mockImplementation((eventObject, Company) => {return {response: 'success'}});
+database.writeLanguageData.mockImplementation((language, count, company) => {return {response: 'success'}});
+database.getSentimentScores.mockImplementation((company) => [{sentiment: .42}, {sentiment: .23}]);
+database.getLanguageCount.mockImplementation((language, company) => 42);
+database.getLanguageCounts.mockImplementation((company) => {return {en: 10, fr: 10}});
 
 test('Write sentiment data', () => {
-  expect(database.writeSentimentData()).toBe(42);
+  expect(database.writeSentimentData({sentiment: .42}, 'Google')).toStrictEqual({response: 'success'});
 });
-/*
+
 test('Write Language Data', () => {
-  database.writeLanguageData.mockResolvedValue({});
+  expect(database.writeLanguageData('en', 10, 'Google')).toStrictEqual({response: 'success'});
 });
 
 test('Get Sentiment Scores', () => {
-  database.getSentimentScores.mockResolvedValue({});
+  expect(database.getSentimentScores('Google')).toStrictEqual([{sentiment: .42}, {sentiment: .23}]);
 });
 
 test('Get language count', () => {
-  database.getLanguageCount.mockResolvedValue({});
+  expect(database.getLanguageCount('en', 'Google')).toBe(42);
 });
 
 test('Get languages count', () => {
-  database.getLanguagesCounts.mockResolvedValue({});
+  expect(database.getLanguageCounts('Google')).toStrictEqual({en: 10, fr: 10});
 });
-*/
+
