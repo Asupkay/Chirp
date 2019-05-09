@@ -36,4 +36,5 @@ jobs:
       - run:
             command: |
                 cd backend
+                npm install
                 npm test
