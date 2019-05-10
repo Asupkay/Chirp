@@ -8,7 +8,7 @@ database.getSentimentScores.mockImplementation((company) => [{sentiment: .42}, {
 database.getLanguageCount.mockImplementation((language, company) => 42);
 database.getLanguageCounts.mockImplementation((company) => {return {en: 10, fr: 10}});
 
-//Tests
+//Tests for database
 test('Write sentiment data', () => {
   expect(database.writeSentimentData({sentiment: .42}, 'Google')).toStrictEqual({response: 'success'});
 });
