@@ -8,8 +8,11 @@ import Client from '../NewsFeed/Client';
 import { withStyles } from '@material-ui/core/styles';
 import io from 'socket.io-client';
 import './Dashboard.css';
-import { Grid, Header, Container, Image, Button } from 'semantic-ui-react';
+import { Grid,  Image, Button } from 'semantic-ui-react';
 import { PriorityQueue } from './priorityQueue';
+import logo from "./Twitter.svg"; 
+import F_Stock from '../Facebook_Stock/F_Stock'
+import G_Stock from '../Google_Stock/G_Stock'
 
 class Dashboard extends Component {
   state = {
@@ -95,10 +98,7 @@ class Dashboard extends Component {
     console.log(this.state);
   };
 
-  constructor(props) {
-    super(props);
-  }
-
+  
   componentDidMount() {
     let socket = this.state.socket;
     socket.on('connect', () => {
@@ -271,25 +271,48 @@ class Dashboard extends Component {
           <Grid.Column textAlign="center">
             <Button.Group>
               <Button color="violet" onClick={() => this.changeRoom('Google')}>
-                <Image src={Google} size="tiny" />
+                <Image src={Google} size="medium" />
               </Button>
               <Button.Or />
               <Button color="blue" onClick={() => this.changeRoom('Facebook')}>
-                <Image src={Facebook} size="tiny" />
+                <Image src={Facebook} size="medium" />
               </Button>
             </Button.Group>
           </Grid.Column>
         </Grid>
-        <Container>
-          <Chart
+      <table>
+      <tr>
+          <td className="App-button">{<button onClick={() => firebase.auth().signOut() }>Sign out</button>}</td>
+        </tr>
+      </table>
+        <table cellPadding= "-150px" width= "10px" height="5px" >
+        <tr className="App-logo">
+            <th><img src={logo} alt="Twitter's logo"/></th>
+        </tr>
+        </table>
+        <table  cellPadding= "50px" width= "1400px" height="500px" >
+          <tr>
+            <th>
+              <Chart
             lineChartData={this.state.lineChartData}
             lineChartOptions={this.state.lineChartOptions}
             room={this.state.room}
-          />
-        </Container>
-        <Container>
-          <Pie data={this.state.pie} />
-        </Container>
+              />
+            </th>
+             <th><Client /></th> 
+        </tr>
+        <tr>
+          <td><Pie data={this.state.pie} /></td>
+        </tr>
+        </table>
+        
+        <table  cellPadding= "50px" width= "400px" height="500px" >
+          <tr>
+            <th> <G_Stock /> </th>
+             <th> <F_Stock /></th> 
+        </tr>
+        </table>
+        
       </div>
     );
   }

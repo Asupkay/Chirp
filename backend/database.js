@@ -1,7 +1,7 @@
 const admin = require('firebase-admin');
 const serviceAccount = require('./serviceAccountKey.json');
 
-require('dotenv').config();
+require('dotenv').config({ path: "./variable.env/" });
 
 //Initialze Firebase authentication
 admin.initializeApp({

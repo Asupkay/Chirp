@@ -10,7 +10,7 @@ const app = express();
 const server = http.Server(app);
 const io = require('socket.io')(server);
 
-require('dotenv').config();
+require('dotenv').config({ path: "./variable.env/" });
 
 //Intialize Streams
 streams(io, 'Google');

@@ -44,7 +44,7 @@ function updateFeed(topic) {
 }
 
 app.get("/live", (req, res) => {
-  const topic = "google";
+  const topic = "google facebook";
   fetchNews(topic, 1)
     .then(response => {
       res.json(response.articles);

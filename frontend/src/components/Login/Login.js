@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import firebase from 'firebase';
 import Dashboard from '../Dashboard/Dashboard';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
-import { Header, Container, Image } from 'semantic-ui-react';
+import './Login.css'
 
 firebase.initializeApp({
   apiKey: 'AIzaSyAAvY6B5kU2wEW4VuQflawZzCweyJu4Hgo',
@@ -34,6 +34,9 @@ class Login extends Component {
   render() {
     return (
       <div className="Login">
+        <div>
+          <h1 height="-5000px">Welcome to Chirp - The Online Twitter Sentiment Analysis Software</h1>
+        </div>
         {this.state.isSignedIn ? (
           <span>
             <Dashboard />

@@ -1,4 +1,3 @@
-import io from 'socket.io-client';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Chart from './chart';

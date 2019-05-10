@@ -14,7 +14,7 @@
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
     "firebase": "^5.8.2",
-    "firebase-admin": "^7.0.0",
+    "firebase-admin": "^7.3.0",
     "franc": "^4.0.0",
     "iso-language-converter": "^1.1.0",
     "newsapi": "^2.4.0",

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Pie } from 'react-chartjs-2';
 import './pie.css';
-import { Header, Container, Image } from 'semantic-ui-react';
+import { Header } from 'semantic-ui-react';
 
 class Pie1 extends Component {
   render() {
